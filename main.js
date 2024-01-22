@@ -133,6 +133,7 @@ class MainDialog extends soui4.JsHostWnd{
 		editApi.SetSel(-1,-1,false);
 		editApi.ReplaceSel(text,false);
 		editApi.Release();
+		edit_chat.SSendMessage(0x115,7)//WM_VSCROLL= 0x115, SB_BOTTOM=7
 	}
 
 	onWsText(str){

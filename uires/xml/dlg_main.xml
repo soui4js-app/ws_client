@@ -24,7 +24,7 @@ translucent="1"
 		<button size="100,30" name="btn_login" text="login"/>
 	</window>
     <window size="-2,0" weight="1" padding="5" layout="hbox">
-		<richedit size="0,-2" weight="1" name="edit_chat" multilines="1" margin="2" readonly="1"/>
+		<richedit size="0,-2" weight="1" name="edit_chat" multilines="1" margin="2" readonly="1" vscrollBar="1"  wordWrap="1" autoVscroll="1" hscrollBar="0"/>
 		<listview size="150,-2" name="lv_peer" margin="2">
 			<template height="30" layout="hbox" gravity="center">
 				<text name="txt_name"/>
