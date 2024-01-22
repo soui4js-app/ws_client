@@ -96,8 +96,8 @@ class MainDialog extends soui4.JsHostWnd{
 		   this.ws.onConnected = this.onWsConn;
 		   this.ws.onClose = this.onWsClose;
 		   this.ws.onText = this.onWsText;
-		   this.ws.onConnError = this.onWsErr;
-		   this.FindIChildByName("btn_login").EnableWindow(false);
+		   this.ws.onError = this.onWsErr;
+		   this.FindIChildByName("btn_login").EnableWindow(false,true);
 	}
 
 	onBtnSend(e){
@@ -124,7 +124,7 @@ class MainDialog extends soui4.JsHostWnd{
 	onWsClose(){
 		this.loginState= LoginState.Logout;
 		console.log("conn break, set state to logout");
-		this.FindIChildByName("btn_login").EnableWindow(true);
+		this.FindIChildByName("btn_login").EnableWindow(true,true);
 	}
 	
 	appendMsg(text){
@@ -161,7 +161,8 @@ class MainDialog extends soui4.JsHostWnd{
 	onWsErr(errStr){
 		this.loginState= LoginState.Logout;
 		console.log("ws err:"+errStr);
-		this.FindIChildByName("btn_login").EnableWindow(true);
+		this.FindIChildByName("btn_login").EnableWindow(true,true);
+		soui4.SMessageBox(this.GetHwnd(),errStr,"conn err",soui4.MB_OK|soui4.MB_ICONERROR);
 	}
 
 	init(){
@@ -177,6 +178,7 @@ class MainDialog extends soui4.JsHostWnd{
 	uninit(){
 		//do uninit.
 		this.ws = null;
+		this.lvapi.SetAdapter(null);
 		this.lvapi.Release();
 		this.lvapi=null;
 		this.lvAdapter=null;
