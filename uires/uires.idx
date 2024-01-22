@@ -14,4 +14,8 @@
   <ICON>
     <file name="ICON_LOGO"  path="image\soui.ico"/>
   </ICON>
+  <IMG>
+  	<file name="png_item_bk" path="image\item_bk.png"/>
+  </IMG>
+
 </resource>

@@ -17,6 +17,7 @@ class PeerLvAdapter extends soui4.SLvAdapter{
 		this.mainDlg = mainDlg;
 		this.onGetView= this.getView;
 		this.onGetCount = this.getCount;
+		this.id = -1;
 		this.peers = []; //prepare a app list.
 	}
 
@@ -31,7 +32,10 @@ class PeerLvAdapter extends soui4.SLvAdapter{
 		}else{
 			pos--;
 			pItem.FindIChildByName("txt_name").SetWindowText(this.peers[pos].name);
-			pItem.FindIChildByName("txt_id").SetWindowText(""+this.peers[pos].id);
+			if(this.peers[pos].id == this.id)
+				pItem.FindIChildByName("txt_id").SetWindowText(""+this.peers[pos].id+"*");
+			else
+				pItem.FindIChildByName("txt_id").SetWindowText(""+this.peers[pos].id);
 		}
 	}
 
@@ -40,8 +44,20 @@ class PeerLvAdapter extends soui4.SLvAdapter{
 	}
 
 	setPeers(peers){
+		for(let i=0;i<peers.length;i++){
+			if(peers[i].id == this.id){
+				let myself = peers[i];
+				peers.splice(i,1);
+				peers.unshift(myself);				
+				break;
+			}
+		}
 		this.peers = peers;
 		this.notifyDataSetChanged();
+	}
+	
+	setMyselfId(id){
+		this.id = id;
 	}
 	getPeers(){
 		return this.peers;
@@ -145,6 +161,7 @@ class MainDialog extends soui4.JsHostWnd{
 				this.lvAdapter.setPeers(msg.peers);
 			}else if(msg.type=="id"){
 				this.id = msg.id;
+				this.lvAdapter.setMyselfId(this.id);
 			}else if(msg.type=="chat"){
 				let fromId = msg.data.from;
 				let from = this.lvAdapter.id2name(fromId);
