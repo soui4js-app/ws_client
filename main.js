@@ -4,23 +4,35 @@ import * as ws4js from "ws4js.dll"
 
 var g_workDir="";
 
+/**
+ * 登陆状态
+ */
 const LoginState = {
-	Logout: 0,
-	Logining: 1,
-	Login: 2,
+	Logout: 0, //登陆失败
+	Logining: 1,//正在登陆
+	Login: 2,//登陆成功
   };
 
-  
+ /**
+  * 用户列表适配器对象，继承自soui4.SLvAdapter
+  */ 
 class PeerLvAdapter extends soui4.SLvAdapter{
 	constructor(mainDlg){
 		super();
 		this.mainDlg = mainDlg;
+		//设置onGetView和onGetCount这两个回调
 		this.onGetView= this.getView;
 		this.onGetCount = this.getCount;
 		this.id = -1;
 		this.peers = []; //prepare a app list.
 	}
 
+	/**
+	 * onGetView回调方法，在这个方法中填充当前列表项的显示数据
+	 * @param {number} pos 列表项索引 
+	 * @param {soui4.IItemPanel} pItem 列表项窗口UI
+	 * @param {soui4.IXmlNode} pTemplate 列表项的xml模板
+	 */
 	getView(pos,pItem,pTemplate){
 		if(pItem.GetChildrenCount()==0){
 			pItem.InitFromXml(pTemplate);
@@ -39,10 +51,18 @@ class PeerLvAdapter extends soui4.SLvAdapter{
 		}
 	}
 
+	/**
+	 * 获取列表数据量
+	 * @returns 这里返回peer数据+1, 多的项用来代表全体peer
+	 */
 	getCount(){
 		return this.peers.length+1;
 	}
 
+	/**
+	 * 更新peer数据
+	 * @param {object} peers 所有peer的name,id数据 
+	 */
 	setPeers(peers){
 		for(let i=0;i<peers.length;i++){
 			if(peers[i].id == this.id){
@@ -56,12 +76,27 @@ class PeerLvAdapter extends soui4.SLvAdapter{
 		this.notifyDataSetChanged();
 	}
 	
+	/**
+	 * 设置当前peer自己的id，用来在显示的时候将自己移动到最前
+	 * @param {number} id peer自己的id 
+	 */
 	setMyselfId(id){
 		this.id = id;
 	}
+
+	/**
+	 * 获取peer数据
+	 * @returns 
+	 */
 	getPeers(){
 		return this.peers;
 	}
+
+	/**
+	 * 从peer的id转换为name
+	 * @param {number} id 
+	 * @returns peer的name
+	 */
 	id2name(id){
 		for(let i=0;i<this.peers.length;i++){
 			if(this.peers[i].id == id){
@@ -92,6 +127,11 @@ class MainDialog extends soui4.JsHostWnd{
 		return false;
 	}
 	
+	/**
+	 * 登陆按钮响应函数
+	 * @param {soui4.IEvtArgs} e 
+	 * @returns 
+	 */
 	onBtnLogin(e){
 		if(this.loginState != LoginState.Logout)
 		   return;
@@ -116,6 +156,11 @@ class MainDialog extends soui4.JsHostWnd{
 		   this.FindIChildByName("btn_login").EnableWindow(false,true);
 	}
 
+	/**
+	 * 发送聊天数据按钮响应函数
+	 * @param {soui4.IEvtArgs} e 
+	 * @returns 
+	 */
 	onBtnSend(e){
 		if(this.loginState != LoginState.Login)
 			return;
@@ -133,16 +178,27 @@ class MainDialog extends soui4.JsHostWnd{
 		this.ws.sendText(JSON.stringify(msg),-1);
 	}
 
+	/**
+	 * 连接服务器成功回调
+	 */
 	onWsConn(){
 		this.loginState= LoginState.Login;
 		console.log("login succeed!");
 	}
+
+	/**
+	 * 连接断开回调
+	 */
 	onWsClose(){
 		this.loginState= LoginState.Logout;
 		console.log("conn break, set state to logout");
 		this.FindIChildByName("btn_login").EnableWindow(true,true);
 	}
 	
+	/**
+	 * 将收到的文本消息输出到聊天历史窗口
+	 * @param {string} text 
+	 */
 	appendMsg(text){
 		let edit_chat = this.FindIChildByName("edit_chat");
 		let editApi = soui4.QiIRichEdit(edit_chat);
@@ -152,6 +208,10 @@ class MainDialog extends soui4.JsHostWnd{
 		edit_chat.SSendMessage(0x115,7)//WM_VSCROLL= 0x115, SB_BOTTOM=7
 	}
 
+	/**
+	 * 收到文本消息
+	 * @param {string} str 文本消息json，支持peers,id,chat 3种消息类型
+	 */
 	onWsText(str){
 		console.log("recv:"+str);
 		try{
@@ -176,6 +236,10 @@ class MainDialog extends soui4.JsHostWnd{
 
 	}
 
+	/**
+	 * websocket错误回调的处理
+	 * @param {string} errStr 错误描述 
+	 */
 	onWsErr(errStr){
 		this.loginState= LoginState.Logout;
 		console.log("ws err:"+errStr);
@@ -183,6 +247,9 @@ class MainDialog extends soui4.JsHostWnd{
 		soui4.SMessageBox(this.GetHwnd(),errStr,"conn err",soui4.MB_OK|soui4.MB_ICONERROR);
 	}
 
+	/**
+	 * 初始化
+	 */
 	init(){
 		console.log("init");
 		soui4.SConnect(this.FindIChildByName("btn_login"),soui4.EVT_CMD,this,this.onBtnLogin);
@@ -193,6 +260,10 @@ class MainDialog extends soui4.JsHostWnd{
 		this.lvapi.SetAdapter(this.lvAdapter);
 		
 	}
+
+	/**
+	 * 程序退出前处理
+	 */
 	uninit(){
 		//do uninit.
 		this.ws = null;
