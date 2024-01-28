@@ -2,7 +2,7 @@
 <SOUI name="mainWindow" title="@string/title" bigIcon="ICON_LOGO:32" smallIcon="ICON_LOGO:16" margin="5,5,5,5"  resizable="1" wndType="appMain"
 translucent="1"
 >
-  <root skin="_skin.sys.wnd.bkgnd" cache="1"  width="400" height="400" layout="vbox" interval="5">
+  <root skin="_skin.sys.wnd.bkgnd" cache="1"  width="800" height="600" layout="vbox" interval="5" padding="5">
     <caption size="-2,30" layout="hbox" gravity="center">
 		<icon src="ICON_LOGO:16"/>
 		<text>@string/title</text>
@@ -24,19 +24,31 @@ translucent="1"
 		<button size="100,30" name="btn_login" text="login"/>
 	</window>
     <window size="-2,0" weight="1" padding="5" layout="hbox">
-		<richedit size="0,-2" weight="1" name="edit_chat" multilines="1" margin="2" readonly="1" vscrollBar="1"  wordWrap="1" autoVscroll="1" hscrollBar="0"/>
-		<listview size="150,-2" name="lv_peer" margin="2">
-			<template height="30" layout="hbox" gravity="center"  skin="skin_item_bk" >
-				<text name="txt_name"/>
-				<text text="["/>
-				<text name="txt_id" colorText="@color/red"/>
-				<text text="]"/>
-			</template>
-		</listview>
+		<window size="0,-2" weight="1" layout="vbox">
+			<text text="历史消息:"/>
+			<richedit size="-2,0" weight="1"  name="edit_chat" multilines="1" margin="2" readonly="1"/>
+		</window>
+		<window size="150,-2" layout="vbox">
+		    <text text="用户列表:"/>
+			<listview size="-2,0" weight="1" name="lv_peer" margin="2" ncSkin="_skin.sys.border">
+				<template height="30" layout="hbox" gravity="center"  skin="skin_item_bk" >
+					<text name="txt_name"/>
+					<text text="["/>
+					<text name="txt_id" colorText="@color/red"/>
+					<text text="]"/>
+				</template>
+			</listview>
+		</window>
     </window>
-	<window size="-2,40" layout="hbox" padding="5">
-		<edit size="0,-2" weight="1" margin="2" name="edit_input"/>
-		<button size="150,-2" name="btn_send" text="send"/>
+	<window size="-2,-1" layout="hbox" gravity="center">
+		<text text="输入:"/>
+		<window size="0,0" weight="1"/>
+		<button size="80,30" name="btn_send" text="send"/>
+	</window>
+	<edit size="-2,50" multilines="1" margin="2" name="edit_input"/>
+	<window size="-2,-1" layout="hbox" gravity="center">
+		<text text="QQ群:"/>
+		<edit readonly="1" text="385438344" colorText="@color/red"/>			
 	</window>
   </root>
 </SOUI>
