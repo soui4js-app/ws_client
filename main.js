@@ -13,14 +13,11 @@ const LoginState = {
 	Login: 2,//登陆成功
   };
 
- /**
-  * 用户列表适配器对象，继承自soui4.SLvAdapter
-  */ 
+  
 class PeerLvAdapter extends soui4.SLvAdapter{
 	constructor(mainDlg){
 		super();
 		this.mainDlg = mainDlg;
-		//设置onGetView和onGetCount这两个回调
 		this.onGetView= this.getView;
 		this.onGetCount = this.getCount;
 		this.id = -1;
@@ -57,6 +54,12 @@ class PeerLvAdapter extends soui4.SLvAdapter{
 	 */
 	getCount(){
 		return this.peers.length+1;
+	}
+
+	clear(){
+		this.peers=[];
+		this.id = -1;
+		this.notifyDataSetChanged();
 	}
 
 	/**
@@ -144,7 +147,7 @@ class MainDialog extends soui4.JsHostWnd{
 		svr += "?name="+username;
 
 		   this.ws = new ws4js.WebSocket(svr,"",
-		   g_workDir + "\\cert\\server.crt",
+		   g_workDir + "/cert/server.crt",
 		   true,true,true
 		   );
    
@@ -193,6 +196,7 @@ class MainDialog extends soui4.JsHostWnd{
 		this.loginState= LoginState.Logout;
 		console.log("conn break, set state to logout");
 		this.FindIChildByName("btn_login").EnableWindow(true,true);
+		this.lvAdapter.clear();
 	}
 	
 	/**
@@ -205,7 +209,7 @@ class MainDialog extends soui4.JsHostWnd{
 		editApi.SetSel(-1,-1,false);
 		editApi.ReplaceSel(text,false);
 		editApi.Release();
-		edit_chat.SSendMessage(0x115,7)//WM_VSCROLL= 0x115, SB_BOTTOM=7
+		edit_chat.SSendMessage(0x115,7,0)//WM_VSCROLL= 0x115, SB_BOTTOM=7
 	}
 
 	/**
@@ -213,7 +217,7 @@ class MainDialog extends soui4.JsHostWnd{
 	 * @param {string} str 文本消息json，支持peers,id,chat 3种消息类型
 	 */
 	onWsText(str){
-		console.log("recv:"+str);
+		console.log("onWsText,recv:"+str);
 		try{
 			let msg = JSON.parse(str);
 			if(msg.type=="peers"){
@@ -244,6 +248,7 @@ class MainDialog extends soui4.JsHostWnd{
 		this.loginState= LoginState.Logout;
 		console.log("ws err:"+errStr);
 		this.FindIChildByName("btn_login").EnableWindow(true,true);
+		this.lvAdapter.clear();
 		soui4.SMessageBox(this.GetHwnd(),errStr,"conn err",soui4.MB_OK|soui4.MB_ICONERROR);
 	}
 
@@ -287,11 +292,11 @@ function main(inst,workDir,args)
 	let souiFac = soui4.CreateSouiFactory();
 	//*
 	let resProvider = souiFac.CreateResProvider(1);
-	soui4.InitFileResProvider(resProvider,workDir + "\\uires");
+	soui4.InitFileResProvider(resProvider,workDir + "/uires");
 	//*/
 	/*
 	// show how to load resource from a zip file
-	let resProvider = soui4.CreateZipResProvider(theApp,workDir +"\\uires.zip","souizip");
+	let resProvider = soui4.CreateZipResProvider(theApp,workDir +"/uires.zip","souizip");
 	if(resProvider === 0){
 		soui4.log("load res from uires.zip failed");
 		return -1;
